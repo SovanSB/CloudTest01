@@ -1,4 +1,4 @@
-package com.yandex.android_school.sovan.cloudtest01.cloud;
+package com.yandex.android_school.sovan.cloudtest01.loader;
 
 import android.content.AsyncTaskLoader;
 import android.content.Context;
@@ -6,6 +6,7 @@ import android.content.Loader;
 import android.util.Log;
 
 import com.yandex.android_school.sovan.cloudtest01.api.VersionApi;
+import com.yandex.android_school.sovan.cloudtest01.cloud.VersionItem;
 
 import java.io.IOException;
 
@@ -21,6 +22,7 @@ import retrofit.RxJavaCallAdapterFactory;
  */
 public class AsyncVersionLoader extends AsyncTaskLoader<VersionItem>{
     String mBaseUri;
+    VersionItem mItem;
 
     public AsyncVersionLoader(Context context, String uri) {
         super(context);
@@ -39,10 +41,15 @@ public class AsyncVersionLoader extends AsyncTaskLoader<VersionItem>{
                 .build();
 
         VersionApi service = testRetrofit.create(VersionApi.class);
-        VersionItem testItem = null;
+     //   VersionItem testItem = null;
         Call<VersionItem> testCall = service.getVersion();
         try {
-            testItem = testCall.execute().body();
+            mItem = testCall.execute().body();
+            try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -64,6 +71,24 @@ public class AsyncVersionLoader extends AsyncTaskLoader<VersionItem>{
 //                Log.e("Response", "Failure error!", t);
 //            }
 //        });
-        return testItem;
+        return mItem;
     }
+
+    @Override
+    protected void onStartLoading() {
+        if (mItem != null) {
+            deliverResult(mItem);
+        }
+//        else loadInBackground();
+      //  super.onStartLoading();
+        if (mItem == null) {
+            forceLoad();
+        }
+//        else startLoading();
+    }
+//
+//    @Override
+//    public void deliverResult(VersionItem data) {
+//        super.deliverResult(data);
+//    }
 }

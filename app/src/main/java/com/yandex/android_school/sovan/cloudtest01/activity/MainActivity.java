@@ -8,10 +8,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.yandex.android_school.sovan.cloudtest01.R;
-import com.yandex.android_school.sovan.cloudtest01.cloud.AsyncVersionLoader;
+import com.yandex.android_school.sovan.cloudtest01.loader.AsyncVersionLoader;
 import com.yandex.android_school.sovan.cloudtest01.cloud.VersionItem;
 
 public class MainActivity extends Activity implements LoaderManager.LoaderCallbacks<VersionItem> {
@@ -26,7 +25,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mVersionItemLoader = (AsyncVersionLoader) getLoaderManager().initLoader(R.id.version_manager, Bundle.EMPTY, this);
+        getLoaderManager().initLoader(R.id.version_manager, Bundle.EMPTY, this);
 
         mTextViewUri = (TextView) findViewById(R.id.textViewUrl);
         mTextViewVersion = (TextView) findViewById(R.id.textViewVersion);
@@ -106,14 +105,14 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
 
     public void onButtonClick(View view) {
        // Toast.makeText(this, "test", Toast.LENGTH_SHORT).show();
-        mVersionItemLoader = (AsyncVersionLoader) getLoaderManager().initLoader(R.id.version_manager, Bundle.EMPTY, this);
-        mVersionItemLoader.loadInBackground();
+       getLoaderManager().initLoader(R.id.version_manager, Bundle.EMPTY, this);
+
     }
 
     @Override
     public Loader<VersionItem> onCreateLoader(int id, Bundle args) {
         if (id == R.id.version_manager) {
-            new AsyncVersionLoader(getApplicationContext(), BASE_URI);
+            return new AsyncVersionLoader(getApplicationContext(), BASE_URI);
         }
         return null;
     }
