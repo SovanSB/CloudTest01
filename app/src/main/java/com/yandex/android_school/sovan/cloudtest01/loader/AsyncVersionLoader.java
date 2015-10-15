@@ -35,7 +35,7 @@ public class AsyncVersionLoader extends AsyncTaskLoader<VersionItem>{
     @Override
     public VersionItem loadInBackground() {
         Retrofit testRetrofit = new Retrofit.Builder()
-                .baseUrl("https://dl.dropboxusercontent.com")
+                .baseUrl(mBaseUri)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
@@ -45,11 +45,11 @@ public class AsyncVersionLoader extends AsyncTaskLoader<VersionItem>{
         Call<VersionItem> testCall = service.getVersion();
         try {
             mItem = testCall.execute().body();
-            try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+//            try {
+//                    Thread.sleep(5000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -76,14 +76,14 @@ public class AsyncVersionLoader extends AsyncTaskLoader<VersionItem>{
 
     @Override
     protected void onStartLoading() {
-        if (mItem != null) {
-            deliverResult(mItem);
-        }
+//        if (mItem != null) {
+//            deliverResult(mItem);
+//        }
 //        else loadInBackground();
       //  super.onStartLoading();
-        if (mItem == null) {
+//        if (mItem == null) {
             forceLoad();
-        }
+//        }
 //        else startLoading();
     }
 //

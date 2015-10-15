@@ -16,7 +16,7 @@ import android.provider.BaseColumns;
 public class SQLiteProvider extends ContentProvider {
 
     private static final String DATABASE_NAME = "files.db";
-    private static final int DATABASE_VERSION = 0;
+    private static final int DATABASE_VERSION = 1;
     private MySQLHelper mHelper;
 
     @Override
@@ -56,7 +56,7 @@ public class SQLiteProvider extends ContentProvider {
     }
 
     public Uri insert(Uri uri, ContentValues values, boolean notify) {
-        final long lastInsertRowid = mHelper.getWritableDatabase().insert(
+        final long lastInsertRowId = mHelper.getWritableDatabase().insert(
                 uri.getPathSegments().get(0),
                 BaseColumns._ID,
                 values
@@ -65,7 +65,7 @@ public class SQLiteProvider extends ContentProvider {
                 .scheme(uri.getScheme())
                 .authority(uri.getAuthority())
                 .path(uri.getPathSegments().get(0))
-                .path(Long.toString(lastInsertRowid))
+                .path(Long.toString(lastInsertRowId))
                 .build();
         if (notify) {
             getContext().getContentResolver().notifyChange(uri, null);
@@ -74,13 +74,44 @@ public class SQLiteProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
-        return 0;
+    public int delete(Uri uri, String where, String[] whereArgs) {
+        if (SQLiteUriMatcher.match(uri) == SQLiteUriMatcher.NO_MATCH) {
+            throw new SQLiteException("Uri not found " + uri.toString());
+        }
+        final int affectedRows = mHelper.getWritableDatabase().delete(uri.getPathSegments().get(0), where, whereArgs);
+        if (affectedRows > 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return affectedRows;
     }
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        return 0;
+    public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
+        if (SQLiteUriMatcher.match(uri) == SQLiteUriMatcher.NO_MATCH) {
+            throw new SQLiteException("Uri not found " + uri.toString());
+        }
+        final int affectedRows = mHelper.getWritableDatabase().update(uri.getPathSegments().get(0),
+                values, where, whereArgs);
+        if (affectedRows > 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return affectedRows;
+    }
+
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        final SQLiteDatabase db = mHelper.getWritableDatabase();
+        db.beginTransactionNonExclusive();
+        try {
+            for (final ContentValues value : values) {
+                insert(uri, value, false);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return values.length;
     }
 
     private Cursor select(Uri uri, String[] columns, String where, String[] whereArgs, String orderBy) {

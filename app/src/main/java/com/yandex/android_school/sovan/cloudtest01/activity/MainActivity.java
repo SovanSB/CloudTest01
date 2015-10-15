@@ -3,32 +3,46 @@ package com.yandex.android_school.sovan.cloudtest01.activity;
 import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.Loader;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.yandex.android_school.sovan.cloudtest01.R;
+import com.yandex.android_school.sovan.cloudtest01.adapter.PictureAdapter;
+import com.yandex.android_school.sovan.cloudtest01.cloud.PictureItem;
 import com.yandex.android_school.sovan.cloudtest01.loader.AsyncVersionLoader;
 import com.yandex.android_school.sovan.cloudtest01.cloud.VersionItem;
+import com.yandex.android_school.sovan.cloudtest01.loader.FileListLoader;
 
-public class MainActivity extends Activity implements LoaderManager.LoaderCallbacks<VersionItem> {
+public class MainActivity extends Activity implements LoaderManager.LoaderCallbacks {
 
     public String url = "start";
-    public final String BASE_URI = "https://dl.dropboxusercontent.com";
+    public String BASE_URI = "https://dl.dropboxusercontent.com";
+    // public final String BASE_URI = "https://dl.dropboxusercontent.com/s/qj2q5iki25a2bh2/version.txt";
     TextView mTextViewUri;
     TextView mTextViewVersion;
-    AsyncVersionLoader mVersionItemLoader;
+
+    ListView mListView;
+    PictureAdapter mPictureAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getLoaderManager().initLoader(R.id.version_manager, Bundle.EMPTY, this);
+
 
         mTextViewUri = (TextView) findViewById(R.id.textViewUrl);
         mTextViewVersion = (TextView) findViewById(R.id.textViewVersion);
+        mListView = (ListView) findViewById(R.id.listView);
+        mPictureAdapter = new PictureAdapter(this, null);
+        mListView.setAdapter(mPictureAdapter);
+
+        getLoaderManager().initLoader(R.id.version_manager, Bundle.EMPTY, this);
+        //      getLoaderManager().initLoader(R.id.files_manager, Bundle.EMPTY, this);
 
 
     }
@@ -104,33 +118,44 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
 
 
     public void onButtonClick(View view) {
-       // Toast.makeText(this, "test", Toast.LENGTH_SHORT).show();
-       getLoaderManager().initLoader(R.id.version_manager, Bundle.EMPTY, this);
+        // Toast.makeText(this, "test", Toast.LENGTH_SHORT).show();
+        getLoaderManager().initLoader(R.id.version_manager, Bundle.EMPTY, this);
+        getLoaderManager().initLoader(R.id.files_manager, Bundle.EMPTY, this);
 
     }
 
     @Override
-    public Loader<VersionItem> onCreateLoader(int id, Bundle args) {
+    public Loader onCreateLoader(int id, Bundle args) {
         if (id == R.id.version_manager) {
             return new AsyncVersionLoader(getApplicationContext(), BASE_URI);
+        }
+        if (id == R.id.files_manager) {
+            return new FileListLoader(getApplicationContext(), BASE_URI);
         }
         return null;
     }
 
     @Override
-    public void onLoadFinished(Loader<VersionItem> loader, VersionItem data) {
+    public void onLoadFinished(Loader loader, Object data) {
         if (loader.getId() == R.id.version_manager) {
             if (data != null) {
-                mTextViewVersion.setText(Long.toString(data.getId()));
-                mTextViewUri.setText(data.getUrl());
+                mTextViewVersion.setText(Long.toString(((VersionItem) data).getId()));
+                mTextViewUri.setText(((VersionItem) data).getUrl());
+                BASE_URI = ((VersionItem) data).getUrl();
             }
+        }
+        if (loader.getId() == R.id.files_manager) {
+            mPictureAdapter.swapCursor((Cursor) data);
         }
     }
 
     @Override
-    public void onLoaderReset(Loader<VersionItem> loader) {
+    public void onLoaderReset(Loader loader) {
         if (loader.getId() == R.id.version_manager) {
-            mTextViewUri.setText("Loader reset");
+            //          mTextViewUri.setText("Loader reset");
+        }
+        if (loader.getId() == R.id.files_manager) {
+            mPictureAdapter.swapCursor(null);
         }
     }
 }
