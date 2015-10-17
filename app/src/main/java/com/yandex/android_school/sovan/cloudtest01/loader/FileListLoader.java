@@ -25,10 +25,12 @@ import retrofit.RxJavaCallAdapterFactory;
  */
 public class FileListLoader extends CursorLoader {
     final String mBaseUri;
+    final String mEndPoint;
 
-    public FileListLoader(Context context, String baseUri) {
+    public FileListLoader(Context context, String baseUri, String endPoint) {
         super(context, PictureItem.URI, null, null, null, null);
         mBaseUri = baseUri;
+        mEndPoint = endPoint;
     }
 
     @Override
@@ -42,9 +44,9 @@ public class FileListLoader extends CursorLoader {
 
         FileListApi service = testRetrofit.create(FileListApi.class);
         //   VersionItem testItem = null;
-        Call<List<PictureItem>> testCall = service.loadPictures(mBaseUri);
+        Call<List<PictureItem>> testCall = service.loadPictures(mEndPoint);
         List<PictureItem> list;
-        List<ContentValues> values = new ArrayList<ContentValues>();
+        List<ContentValues> values = new ArrayList<>();
         try {
             Response<List<PictureItem>> testResponse = testCall.execute();
             list = testResponse.body();

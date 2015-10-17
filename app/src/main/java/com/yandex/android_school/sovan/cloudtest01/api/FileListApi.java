@@ -13,5 +13,6 @@ import retrofit.http.Path;
  */
 public interface FileListApi {
     @GET("{url}")
+  //  @GET("https://dl.dropboxusercontent.com/s/gc7eluk8lgxodd7/filelist.txt?dl=0")
     Call<List<PictureItem>> loadPictures(@Path("url") String url);
 }

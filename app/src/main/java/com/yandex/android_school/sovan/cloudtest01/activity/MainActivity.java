@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.Loader;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,6 +23,9 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
 
     public String url = "start";
     public String BASE_URI = "https://dl.dropboxusercontent.com";
+    public String mEndPoint;
+
+    public Uri mReceivedUri;
     // public final String BASE_URI = "https://dl.dropboxusercontent.com/s/qj2q5iki25a2bh2/version.txt";
     TextView mTextViewUri;
     TextView mTextViewVersion;
@@ -130,7 +134,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
             return new AsyncVersionLoader(getApplicationContext(), BASE_URI);
         }
         if (id == R.id.files_manager) {
-            return new FileListLoader(getApplicationContext(), BASE_URI);
+            return new FileListLoader(getApplicationContext(), BASE_URI, mEndPoint);
         }
         return null;
     }
@@ -141,7 +145,18 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
             if (data != null) {
                 mTextViewVersion.setText(Long.toString(((VersionItem) data).getId()));
                 mTextViewUri.setText(((VersionItem) data).getUrl());
-                BASE_URI = ((VersionItem) data).getUrl();
+                String uriString = ((VersionItem) data).getUrl();
+//                BASE_URI = uriString;
+                mReceivedUri = Uri.parse(uriString);
+                BASE_URI = mReceivedUri.getScheme() +"://" + mReceivedUri.getAuthority();
+                mEndPoint = mReceivedUri.getEncodedPath();
+
+//                String auth = mReceivedUri.getAuthority();
+//                String authEnc = mReceivedUri.getEncodedAuthority();
+//                String host = mReceivedUri.getHost();
+
+               // mEndPoint = uriString;
+
             }
         }
         if (loader.getId() == R.id.files_manager) {
