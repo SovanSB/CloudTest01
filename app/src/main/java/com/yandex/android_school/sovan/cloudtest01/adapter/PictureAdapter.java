@@ -38,7 +38,13 @@ public class PictureAdapter extends ResourceCursorAdapter {
         }
         else {
             imageView.setVisibility(View.VISIBLE);
-            Picasso.with(context).load(url).into(imageView);
+            Picasso
+                    .with(context)
+                    .load(url)
+                    .centerCrop()
+                    .resize(200,200)
+                    .error(R.mipmap.ic_launcher)
+                    .into(imageView);
         }
     }
 }
