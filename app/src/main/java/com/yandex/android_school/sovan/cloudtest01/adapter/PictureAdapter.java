@@ -41,8 +41,9 @@ public class PictureAdapter extends ResourceCursorAdapter {
             Picasso
                     .with(context)
                     .load(url)
+                    .fit()
                     .centerCrop()
-                    .resize(200,200)
+                 //   .resize(200,200)
                     .error(R.mipmap.ic_launcher)
                     .into(imageView);
         }
